@@ -1,6 +1,10 @@
 import subprocess
 
 
+def del_dollar_sign(command):
+    return command.lstrip("$ ").strip()
+
+
 def process_nested_tables_and_execute_commands(nested_tables):
     updated_tables = []
 
@@ -9,10 +13,13 @@ def process_nested_tables_and_execute_commands(nested_tables):
         for row in table:
             if len(row) >= 6:
                 number, group, command, expected_value, yes, no = row
-
+                print(command)
+                command = del_dollar_sign(command)
+                print(command)
                 try:
                     result = subprocess.run(command, shell=True, text=True, capture_output=True)
                     output = result.stdout.strip()
+
                     if output == expected_value:
                         yes = '1'
                         no = ''
