@@ -1,3 +1,3 @@
 - git clone https://github.com/agapoov/script.git
-- chmod +x script.sh
+- chmod +x run.sh
 - ./run.sh
