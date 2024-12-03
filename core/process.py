@@ -1,8 +1,37 @@
 import subprocess
+import re
+
+
+def remove_comments_for_3(text):
+    comment_match = re.search(r'\s*\(.*\)', text)
+    comment = comment_match.group(0) if comment_match else ''
+    cleaned_text = re.sub(r'\s*\(.*\)', '', text)
+    cleaned_text = cleaned_text.strip()
+    return cleaned_text, comment
+
+
+def parse_output(output):
+    output_dict = {}
+    lines = output.strip().split("\n")
+
+    for line in lines:
+        parts = line.split("=")
+        if len(parts) == 2:
+            key = parts[0].strip()
+            value = parts[1].strip()
+            output_dict[key] = value
+    return output_dict
 
 
 def del_dollar_sign(command):
     return command.lstrip("$ ").strip()
+
+
+def check_greater_or_equal(value, expected_value, comment):
+    if 'больше' in comment or 'или больше' in comment:
+        return value >= expected_value
+    else:
+        return value == expected_value
 
 
 def process_nested_tables_and_execute_commands(nested_tables):
@@ -17,19 +46,42 @@ def process_nested_tables_and_execute_commands(nested_tables):
 
                 try:
                     result = subprocess.run(command, shell=True, text=True, capture_output=True)
-                    output = result.stdout.strip()
 
-                    if output == expected_value:
-                        yes = '1'
-                        no = ''
+                    output = result.stdout.strip()
+                    if number.startswith('3'):
+                        clear_expected_value, comment = remove_comments_for_3(expected_value)
+
+                        output_dict = parse_output(output)
+                        expected_dict = parse_output(clear_expected_value)
+
+                        match_found = False
+                        for key, expected in expected_dict.items():
+                            if key in output_dict:
+                                if check_greater_or_equal(output_dict[key], expected, comment):
+                                    match_found = True
+                                    break
+
+                        if match_found:
+                            yes = '1'
+                            no = ''
+                        else:
+                            yes = ''
+                            no = '0'
+
                     else:
-                        yes = ''
-                        no = '0'
+                        if output == expected_value:
+                            yes = '1'
+                            no = ''
+                        else:
+                            yes = ''
+                            no = '0'
+
+                    print(f'Processed for {number}, match: {yes == "1"}')
 
                 except Exception as e:
                     print(f"Ошибка при выполнении команды '{command}': {e}")
-                    yes = '0'
-                    no = '1'
+                    yes = 'Error'
+                    no = 'Error'
 
                 updated_row = [number, group, command, expected_value, yes, no]
                 updated_table.append(updated_row)
