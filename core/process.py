@@ -1,6 +1,10 @@
 import subprocess
 import re
 
+RED = '\033[91m'
+GREEN = '\033[92m'
+RESET = '\033[0m'
+
 
 def remove_comments_for_3(text):
     comment_match = re.search(r'\s*\(.*\)', text)
@@ -28,6 +32,12 @@ def del_dollar_sign(command):
 
 
 def check_greater_or_equal(value, expected_value, comment):
+    try:
+        value = float(value)
+        expected_value = float(expected_value)
+    except ValueError:
+        pass
+
     if 'больше' in comment or 'или больше' in comment:
         return value >= expected_value
     else:
@@ -76,10 +86,14 @@ def process_nested_tables_and_execute_commands(nested_tables):
                             yes = ''
                             no = '0'
 
-                    print(f'Processed for {number}, match: {yes == "1"}')
+                    if yes == '1':
+                        print(f'{GREEN}Processed for {number}, match: {yes == "1"}{RESET}')
+                    else:
+                        print(f'{RED}Processed for {number}, match: {yes == "1"}{RESET}')
 
                 except Exception as e:
-                    print(f"Ошибка при выполнении команды '{command}': {e}")
+                    print(f"{RED}Ошибка при выполнении команды '{command}': {e}{RESET}")
+
                     yes = 'Error'
                     no = 'Error'
 
