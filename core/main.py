@@ -18,6 +18,8 @@ def main():
 
     save_updated_data_to_word(updated_tables, output_file_path)
 
+    print(f'Обработано {len(updated_tables)} таблиц. ')
+
     print(f"Результат сохранен в файл: {output_file_path}")
 
 

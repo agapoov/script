@@ -58,7 +58,7 @@ def process_nested_tables_and_execute_commands(nested_tables):
                     result = subprocess.run(command, shell=True, text=True, capture_output=True)
 
                     output = result.stdout.strip()
-                    if number.startswith('3'):
+                    if re.match(r'^3\.', number):
                         clear_expected_value, comment = remove_comments_for_3(expected_value)
 
                         output_dict = parse_output(output)
@@ -88,6 +88,7 @@ def process_nested_tables_and_execute_commands(nested_tables):
 
                     if yes == '1':
                         print(f'{GREEN}Processed for {number}, match: {yes == "1"}{RESET}')
+
                     else:
                         print(f'{RED}Processed for {number}, match: {yes == "1"}{RESET}')
 
